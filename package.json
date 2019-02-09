@@ -1,0 +1,19 @@
+{
+  "name": "pcm-mixer",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "repository": "git@github.com:padarom/pcm-mixer.git",
+  "author": "Christopher Mühl <christopher@padarom.io>",
+  "license": "MIT",
+  "scripts": {
+    "watch": "tsc --watch",
+    "build": "tsc",
+    "prepackageOnly": "npm run build"
+  },
+  "devDependencies": {
+    "@types/node": "^10.12.24",
+    "speaker": "^0.4.1",
+    "typescript": "^3.3.3"
+  },
+  "dependencies": {}
+}

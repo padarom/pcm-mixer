@@ -1,0 +1,2 @@
+const Mixer = require('../dist')
+
