@@ -17,7 +17,7 @@ mixer.pipe(speaker)
 
 audioFiles.forEach((file, n) => {
     let stream = fs.createReadStream(file)
-    let input = mixer.input({ delay: n * 1000 })
+    let input = mixer.input({ delay: n * 2000 })
 
     stream.pipe(input)
 })

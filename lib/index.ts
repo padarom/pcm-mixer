@@ -16,8 +16,9 @@ export default class Mixer extends Duplex {
         return
     }
 
-    _write () {
-        return
+    _write (chunk: Buffer, encoding: any, next: any) {
+        this.push(chunk)
+        next()
     }
 
 }

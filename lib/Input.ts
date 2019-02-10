@@ -19,8 +19,12 @@ export default class Input extends Duplex {
         return
     }
 
-    _write () {
-        return
+    _write (chunk: Buffer, encoding: any, next: any) {
+        setTimeout(() => {
+            this.push(chunk)
+        }, this.options.delay || 0)
+        
+        next()
     }
 
 }
