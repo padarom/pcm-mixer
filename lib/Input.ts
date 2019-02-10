@@ -1,29 +1,25 @@
 import { AudioOptions, defaultAudioOptions } from './AudioOptions'
 import Mixer from '.';
-import { Duplex } from 'stream';
+import { Duplex, Writable, Transform } from 'stream';
 
 export interface InputOptions extends AudioOptions {
     delay?: number,
     volume?: number
 }
 
-export default class Input extends Duplex {
+export default class Input extends Transform {
+
+    protected buffer: Buffer = Buffer.allocUnsafe(0)
 
     constructor (protected mixer: Mixer, protected options: InputOptions = defaultAudioOptions) {
         super()
-
-        this.pipe(mixer)
     }
 
-    _read () {
-        return
-    }
+    _transform (chunk: Buffer, encoding: any, next: any) {
+        this.push(chunk)
 
-    _write (chunk: Buffer, encoding: any, next: any) {
-        setTimeout(() => {
-            this.push(chunk)
-        }, this.options.delay || 0)
-        
+        console.log('Writing chunk', chunk)
+
         next()
     }
 
