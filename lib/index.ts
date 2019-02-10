@@ -1,10 +1,14 @@
 import { Duplex } from 'stream'
 import Input, { InputOptions } from './Input'
 import { AudioOptions, defaultAudioOptions } from './AudioOptions'
+import mixer, { MixingFunction } from './mixingFunction'
 
 export default class Mixer extends Duplex {
 
-    constructor (protected options: AudioOptions = defaultAudioOptions) {
+    constructor (
+        protected options: AudioOptions = defaultAudioOptions,
+        protected mixingFunction: MixingFunction = mixer
+    ) {
         super()
     }
 
