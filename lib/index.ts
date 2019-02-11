@@ -2,7 +2,7 @@ import { Readable } from 'stream'
 import Input, { InputInterface, InputOptions } from './Input'
 import { AudioOptions, defaultAudioOptions } from './AudioOptions'
 import mixer, { MixingFunction } from './mixingFunction'
-import Silence from './Silence'
+import SilentInput from './SilentInput'
 
 const NS_PER_SEC = 1e9
 
@@ -27,7 +27,7 @@ export default class Mixer extends Readable {
     }
 
     start () : this {
-        this.inputs.push(new Silence(this.options))
+        this.inputs.push(new SilentInput(this.options))
 
         return this
     }
