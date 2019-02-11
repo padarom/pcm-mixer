@@ -54,7 +54,6 @@ export default class Mixer extends Readable {
             let [buffer, ended] = input.readSamples(size as number, this.lastReadTime)
             
             if (ended) {
-                console.log('Removing input')
                 this.inputs.splice(this.inputs.indexOf(input), 1)
             }
 
