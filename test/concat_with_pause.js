@@ -9,17 +9,15 @@ const audioFiles = [
     './audio/three.pcm',
     './audio/four.pcm',
     './audio/five.pcm',
-    './audio/whitenoise.pcm',
 ]
 
 let speaker = new Speaker()
 let mixer = new Mixer()
-mixer.start().pipe(speaker)
-/*
+mixer.pipe(speaker)
+
 audioFiles.forEach((file, n) => {
     let stream = fs.createReadStream(file)
-    let input = mixer.input({ delay: n * 2000 })
+    let input = mixer.input()
 
-    stream.pipe(input)
+    setTimeout(() => stream.pipe(input), n * 1500)
 })
-*/

@@ -14,26 +14,15 @@ export default class Mixer extends Readable {
 
     constructor (
         protected options: AudioOptions = defaultAudioOptions,
-        protected mixingFunction: MixingFunction = mixer
+        protected mixingFunction: MixingFunction = mixer(options)
     ) {
         super()
 
         this.lastReadTime = process.hrtime()
     }
 
-    protected attachSilentInput () {
-        let silence = new Silence(this.options)
-        silence.pipe(this.input(this.options))
-    }
-
-    start () : this {
-        this.attachSilentInput()
-
-        return this
-    }
-
-    input (options: InputOptions = defaultAudioOptions) : Input {
-        let input = new Input(this, options)
+    input (options: InputOptions) : Input {
+        let input = new Input(this, { ...this.options, ...options })
         this.inputs.push(input)
 
         input.on('end', () => {
@@ -45,7 +34,7 @@ export default class Mixer extends Readable {
     }
 
     _read (size: number | undefined) {
-        if (!size) {
+        if (typeof size === 'undefined') {
             let timeSinceLastRead = process.hrtime(this.lastReadTime)
             this.lastReadTime = process.hrtime()
 
@@ -55,11 +44,10 @@ export default class Mixer extends Readable {
             size = samples
         }
         
-        this.inputs.forEach((input) => {
-            let buffer = input.read(size)
-            
-            this.push(buffer)
-        })
+        let buffers = this.inputs.map(input => [input.readSamples(size as number, this.lastReadTime), input.options.volume]) as [Buffer, number][]
+        
+        let mixedBuffer = this.mixingFunction(buffers, size)
+        this.push(mixedBuffer)
     }
 
 }
