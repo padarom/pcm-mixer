@@ -1,5 +1,5 @@
 import { Readable } from 'stream'
-import Input, { InputOptions } from './Input'
+import Input, { InputInterface, InputOptions } from './Input'
 import { AudioOptions, defaultAudioOptions } from './AudioOptions'
 import mixer, { MixingFunction } from './mixingFunction'
 import Silence from './Silence'
@@ -8,27 +8,40 @@ const NS_PER_SEC = 1e9
 
 export default class Mixer extends Readable {
 
-    protected inputs: Input[] = []
+    protected inputs: InputInterface[] = []
 
     protected lastReadTime: [number, number]
 
+    protected mixingFunction: MixingFunction
+
     constructor (
-        protected options: AudioOptions = defaultAudioOptions,
-        protected mixingFunction: MixingFunction = mixer(options)
+        protected options: AudioOptions,
+        mixingFunction: MixingFunction | undefined
     ) {
         super()
 
         this.lastReadTime = process.hrtime()
+        this.options = { ...defaultAudioOptions, ...options }
+
+        this.mixingFunction = typeof mixingFunction === 'undefined' ? mixer(this.options) : mixingFunction
+    }
+
+    start () : this {
+        this.inputs.push(new Silence(this.options))
+
+        return this
     }
 
     input (options: InputOptions) : Input {
         let input = new Input(this, { ...this.options, ...options })
         this.inputs.push(input)
 
+        /*
         input.on('end', () => {
             let index = this.inputs.indexOf(input)
             this.inputs.splice(index, 1)
         })
+        */
 
         return input
     }
@@ -44,7 +57,7 @@ export default class Mixer extends Readable {
             size = samples
         }
         
-        let buffers = this.inputs.map(input => [input.readSamples(size as number, this.lastReadTime), input.options.volume]) as [Buffer, number][]
+        let buffers = this.inputs.map(input => [input.readSamples(size as number, this.lastReadTime), input.volume]) as [Buffer, number][]
         
         let mixedBuffer = this.mixingFunction(buffers, size)
         this.push(mixedBuffer)

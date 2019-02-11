@@ -10,7 +10,7 @@ const audioFiles = [
 
 let speaker = new Speaker()
 let mixer = new Mixer()
-mixer.pipe(speaker)
+mixer.start().pipe(speaker)
 
 audioFiles.forEach((file, n) => {
     let stream = fs.createReadStream(file)

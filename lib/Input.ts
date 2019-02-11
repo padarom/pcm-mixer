@@ -1,32 +1,36 @@
 import { AudioOptions, defaultAudioOptions } from './AudioOptions'
-import Mixer from '.';
-import { Writable } from 'stream';
+import Mixer from '.'
+import { Writable } from 'stream'
+import createSilenceGenerator, { SilenceGenerator } from './SilenceGenerator'
 
 export interface InputOptions extends AudioOptions {
     volume: number
 }
 
 type hrtime = [number, number]
+export type InputInterface = {
+    volume : number,
+    readSamples (size: number, time: hrtime) : Buffer
+}
 
 const NS_PER_SEC = 1e9
 
-export default class Input extends Writable {
+export default class Input extends Writable implements InputInterface {
+
+    protected buffer: Buffer = Buffer.allocUnsafe(0)
 
     protected lastRead: hrtime = [0, 0]
-    protected buffer: Buffer = Buffer.allocUnsafe(0)
+
+    protected silence: SilenceGenerator
+
+    public volume: number
 
     constructor (protected mixer: Mixer, public options: InputOptions) {
         super()
 
         this.options = { ...defaultAudioOptions, volume: 1, ...options }
-    }
-
-    silence (size: number) : Buffer {
-        let silentBuffer = Buffer.allocUnsafe(size * this.options.channels)
-        let silence = this.options.signed ? 0 : (Math.pow(2, this.options.bitDepth) / 2)
-
-        silentBuffer.fill(silence)
-        return silentBuffer
+        this.volume = this.options.volume
+        this.silence = createSilenceGenerator(this.options.bitDepth, this.options.channels, this.options.signed)
     }
 
     readSamples (size: number, time: hrtime) : Buffer {
@@ -46,7 +50,7 @@ export default class Input extends Writable {
         let timeDifference = process.hrtime(this.lastRead)
         let timeDifferenceInNs = timeDifference[0] * NS_PER_SEC + timeDifference[1]
 
-        const { channels, samplingRate, bitDepth } = this.options
+        const { channels, samplingRate } = this.options
 
         let samplesInChunk = chunk.length / channels
         let samplesRequired = Math.floor(timeDifferenceInNs / NS_PER_SEC * samplingRate)
