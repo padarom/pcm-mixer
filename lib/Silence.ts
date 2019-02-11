@@ -12,8 +12,8 @@ export default class Silence implements InputInterface {
         this.silenceGenerator = createSilenceGenerator(options.bitDepth, options.channels, options.signed)
     }
 
-    readSamples (size: number): Buffer {
-        return this.silenceGenerator(size)
+    readSamples (size: number): [Buffer, boolean] {
+        return [this.silenceGenerator(size), false]
     }
 
 }

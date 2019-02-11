@@ -36,13 +36,6 @@ export default class Mixer extends Readable {
         let input = new Input(this, { ...this.options, ...options })
         this.inputs.push(input)
 
-        /*
-        input.on('end', () => {
-            let index = this.inputs.indexOf(input)
-            this.inputs.splice(index, 1)
-        })
-        */
-
         return input
     }
 
@@ -57,7 +50,16 @@ export default class Mixer extends Readable {
             size = samples
         }
         
-        let buffers = this.inputs.map(input => [input.readSamples(size as number, this.lastReadTime), input.volume]) as [Buffer, number][]
+        let buffers = this.inputs.map(input => {
+            let [buffer, ended] = input.readSamples(size as number, this.lastReadTime)
+            
+            if (ended) {
+                console.log('Removing input')
+                this.inputs.splice(this.inputs.indexOf(input), 1)
+            }
+
+            return [buffer, input.volume]
+        }) as [Buffer, number][]
         
         let mixedBuffer = this.mixingFunction(buffers, size)
         this.push(mixedBuffer)

@@ -3,9 +3,9 @@ Library that allows you to mix live PCM streams by adding a correct amount of si
 
 ##### Todo
 - [ ] When input data is requested, but not enough data is available yet, the input returns only silent output. This is noticeable as periods of silence in between streams.
-- [ ] Support for float PCM streams
-- [ ] Verify functionality with different bitdepths
-- [ ] End input on stream `end` event
+- [ ] Add support for float PCM streams
+- [ ] Verify functionality with different bitdepths and channel count
+- [ ] Verify timing
 
 ### Installation
 ```
@@ -30,6 +30,6 @@ somehowRetreiveAnotherStream().pipe(secondInput)
 mixer.start().pipe(speaker)
 ```
 
-Once a stream that is piped to an input emits an `end` event, that input is automatically removed from the mixer. Keep in mind, that the mixer always has a silent input attached and as such doesn't emit an `end` event itself.
+Once a stream that is piped to an input emits an `unpipe` event, that input is automatically removed from the mixer. Keep in mind that the mixer always has a silent input attached and as such doesn't emit an `end` event itself.
 
 Also have a look at the [test directory](https://github.com/padarom/pcm-mixer/tree/master/test) for some examples.

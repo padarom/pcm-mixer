@@ -10,7 +10,7 @@ export interface InputOptions extends AudioOptions {
 type hrtime = [number, number]
 export type InputInterface = {
     volume : number,
-    readSamples (size: number, time: hrtime) : Buffer
+    readSamples (size: number, time: hrtime) : [Buffer, boolean]
 }
 
 const NS_PER_SEC = 1e9
@@ -23,6 +23,8 @@ export default class Input extends Writable implements InputInterface {
 
     protected silence: SilenceGenerator
 
+    protected unpiped = false
+
     public volume: number
 
     constructor (protected mixer: Mixer, public options: InputOptions) {
@@ -31,19 +33,28 @@ export default class Input extends Writable implements InputInterface {
         this.options = { ...defaultAudioOptions, volume: 1, ...options }
         this.volume = this.options.volume
         this.silence = createSilenceGenerator(this.options.bitDepth, this.options.channels, this.options.signed)
+
+        this.on('unpipe', this.onUnpipe.bind(this))
     }
 
-    readSamples (size: number, time: hrtime) : Buffer {
+    onUnpipe () {
+        this.unpiped = true
+    }
+
+    readSamples (size: number, time: hrtime) : [Buffer, boolean] {
         this.lastRead = time
 
         if (this.buffer.length < size) {
-            return this.silence(size)
+            let drainedBuffer = Buffer.concat([this.buffer, this.silence(size - this.buffer.length)])
+            this.buffer = this.buffer.slice(this.buffer.length)
+            
+            return [drainedBuffer, this.unpiped]
         }
 
         let buffer = this.buffer.slice(0, size)
         this.buffer = this.buffer.slice(size)
 
-        return buffer
+        return [buffer, false]
     }
 
     _write (chunk: Buffer, encoding: any, next: any) {
