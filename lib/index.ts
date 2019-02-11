@@ -39,7 +39,7 @@ export default class Mixer extends Readable {
         return input
     }
 
-    _read (size: number | undefined) {
+    _read (size: number | undefined = undefined) {
         if (typeof size === 'undefined') {
             let timeSinceLastRead = process.hrtime(this.lastReadTime)
             this.lastReadTime = process.hrtime()
@@ -47,9 +47,9 @@ export default class Mixer extends Readable {
             let nanosecondsSinceLastRead = timeSinceLastRead[0] * NS_PER_SEC + timeSinceLastRead[1]
             let samples = nanosecondsSinceLastRead / NS_PER_SEC * this.options.samplingRate
 
-            size = samples
+            size = Math.floor(samples)
         }
-        
+
         let buffers = this.inputs.map(input => {
             let [buffer, ended] = input.readSamples(size as number, this.lastReadTime)
             

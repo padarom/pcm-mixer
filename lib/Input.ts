@@ -24,6 +24,7 @@ export default class Input extends Writable implements InputInterface {
     protected silence: SilenceGenerator
 
     protected unpiped = false
+    protected writtenTo = false
 
     public volume: number
 
@@ -57,17 +58,22 @@ export default class Input extends Writable implements InputInterface {
         return [buffer, false]
     }
 
-    _write (chunk: Buffer, encoding: any, next: any) {
+    addInitialSilence (chunkLength: number) {
         let timeDifference = process.hrtime(this.lastRead)
         let timeDifferenceInNs = timeDifference[0] * NS_PER_SEC + timeDifference[1]
 
         const { channels, samplingRate } = this.options
 
-        let samplesInChunk = chunk.length / channels
+        let samplesInChunk = chunkLength / channels
         let samplesRequired = Math.floor(timeDifferenceInNs / NS_PER_SEC * samplingRate)
 
-        if (samplesInChunk < samplesRequired) {
-            this.buffer = Buffer.concat([this.buffer, this.silence(samplesRequired - samplesInChunk)])
+        this.buffer = this.silence(Math.max(samplesRequired - samplesInChunk, 0))
+    }
+
+    _write (chunk: Buffer, encoding: any, next: any) {
+        if (!this.writtenTo) {
+            this.addInitialSilence(chunk.length)
+            this.writtenTo = true
         }
 
         this.buffer = Buffer.concat([this.buffer, chunk])

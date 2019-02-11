@@ -14,7 +14,7 @@ mixer.start().pipe(speaker)
 
 audioFiles.forEach((file, n) => {
     let stream = fs.createReadStream(file)
-    let input = mixer.input({ volume: n == 0 ? 0.1 : 3})
+    let input = mixer.input({ volume: n == 0 ? 0.5 : 4})
 
     stream.pipe(input)
 })
