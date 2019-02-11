@@ -3,7 +3,8 @@ import { AudioOptions } from './AudioOptions'
 export type MixingFunction = (inputs: [Buffer, number][], length: number | undefined) => Buffer
 
 export default function createMixingFunction (options: AudioOptions) : MixingFunction {
-    let max = (1 << (options.bitDepth - 1)) - 1
+    let positiveBits = options.bitDepth - (options.signed ? 1 : 0)
+    let max = (1 << positiveBits) - 1
     let min = options.signed ? -max - 1 : 0    
 
     return (inputs: [Buffer, number][], length: number | undefined) : Buffer => {
