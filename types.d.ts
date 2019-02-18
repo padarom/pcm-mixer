@@ -51,7 +51,8 @@ declare module 'audio-buffer-utils' {
     type ValueGenerator = (value: number, i: number, channel: number) => number;
     type MixFunction = (valA: number, valB: number, i: number, channel: number) => number;
 
-    function create(data: FromFormat | FromFormat[], options: PCMFormat | number, sampleRate: number) : AudioBuffer;
+    function create(data: FromFormat | FromFormat[], options: PCMFormat, sampleRate: number) : AudioBuffer;
+    function create(data: FromFormat | FromFormat[], channels: number, sampleRate: number) : AudioBuffer;
     function shallow(buffer: AudioBuffer) : AudioBuffer;
     function clone(buffer: AudioBuffer) : AudioBuffer;
     function copy(fromBuffer: AudioBuffer, toBuffer: AudioBuffer, offset: number) : AudioBuffer;
@@ -64,8 +65,10 @@ declare module 'audio-buffer-utils' {
     function zero(buffer: AudioBuffer) : AudioBuffer;
     function noise(buffer: AudioBuffer) : AudioBuffer;
     function equal(...buffers: AudioBuffer[]) : boolean;
-    function fill(buffer: AudioBuffer, target: AudioBuffer | undefined, value: number | ValueGenerator | undefined, start: number | undefined, end: number | undefined) : AudioBuffer;
-    function pad(buffer: AudioBuffer | number, length: AudioBuffer | number, value: number) : AudioBuffer;
+    function fill(buffer: AudioBuffer, target: AudioBuffer | undefined, value: number | undefined, start: number | undefined, end: number | undefined) : AudioBuffer;
+    function fill(buffer: AudioBuffer, target: AudioBuffer | undefined, fillingFunction: ValueGenerator | undefined, start: number | undefined, end: number | undefined) : AudioBuffer;
+    function pad(buffer: AudioBuffer, length: number, value: number) : AudioBuffer;
+    function pad(length: number, buffer: AudioBuffer, value: number) : AudioBuffer;
     function padLeft(buffer: AudioBuffer, length: number, value: number) : AudioBuffer;
     function padRight(buffer: AudioBuffer, length: number, value: number) : AudioBuffer;
     function shift(buffer: AudioBuffer, offset: number) : AudioBuffer;
@@ -75,7 +78,8 @@ declare module 'audio-buffer-utils' {
     function trim(buffer: AudioBuffer, threshold: number | undefined) : AudioBuffer;
     function trimLeft(buffer: AudioBuffer, threshold: number | undefined) : AudioBuffer;
     function trimRight(buffer: AudioBuffer, threshold: number | undefined) : AudioBuffer;
-    function mix(bufferA: AudioBuffer, bufferB: AudioBuffer, ratio: number | MixFunction | undefined, offset: number | undefined) : AudioBuffer;
+    function mix(bufferA: AudioBuffer, bufferB: AudioBuffer, ratio: number | undefined, offset: number | undefined) : AudioBuffer;
+    function mix(bufferA: AudioBuffer, bufferB: AudioBuffer, mixingFunction: MixFunction | undefined, offset: number | undefined) : AudioBuffer;
     function size(buffer: AudioBuffer) : number;
     function data(buffer: AudioBuffer, data: Float32Array[]) : Float32Array[];
 }
