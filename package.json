@@ -14,5 +14,9 @@
     "@types/node": "^10.12.24",
     "speaker": "^0.4.1",
     "typescript": "^3.3.3"
+  },
+  "dependencies": {
+    "audio-buffer-utils": "^5.1.1",
+    "pcm-util": "^3.0.0"
   }
 }
